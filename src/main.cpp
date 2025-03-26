@@ -6,12 +6,13 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  // Uncomment this block to pass the first stage
-  std::cout << "$ ";
+  // Read-Eval-Print Loop
+  while (true) {
+	  std::cout << "$ ";
 
-  std::string input;
-  std::getline(std::cin, input);
+	  std::string command{};
+	  std::getline(std::cin, command);
 
-  // Handle invalid commands
-  std::cout << input << ": command not found\n";
+	  std::cout << command << ": command not found\n";
+  }
 }
