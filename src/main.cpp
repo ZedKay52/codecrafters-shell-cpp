@@ -16,10 +16,25 @@ int main() {
 	  // Get the built-in command
 	  std::string token{ command.substr(0, command.find(" ")) };
 
-	  // Handle exit command
+	  // Handle the token
+	  // -- exit built-in command
 	  if (token == "exit")
 		  return 0;
 
-	  std::cout << command << ": command not found\n";
+	  // -- echo built-in command
+	  else if (token == "echo") {
+		  // If there are no arguments, only the <newline> is written.
+		  std::cout << command.find(" ");
+		  if (command.find(" ") >= command.size()) {
+			  std::cout << '\n';
+			  continue;
+		  }
+
+		  // Write the arguments to standard output, followed by a <newline>
+		  std::string argument{ command.substr(command.find(" ") + 1 , command.size()) };
+		  std::cout << argument << "\n";
+	  }
+	  else
+		std::cout << command << ": command not found\n";
   }
 }
