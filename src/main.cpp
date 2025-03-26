@@ -24,7 +24,6 @@ int main() {
 	  // -- echo built-in command
 	  else if (token == "echo") {
 		  // If there are no arguments, only the <newline> is written.
-		  std::cout << command.find(" ");
 		  if (command.find(" ") >= command.size()) {
 			  std::cout << '\n';
 			  continue;
