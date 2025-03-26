@@ -27,7 +27,7 @@ int main() {
 		  return 0;
 
 	  // -- echo built-in command
-	  if (token == "echo") {
+	  else if (token == "echo") {
 		  // If there are no arguments, only the <newline> is written.
 		  if (command.find(" ") >= command.size()) {
 			  std::cout << '\n';
@@ -40,7 +40,7 @@ int main() {
 	  }
 
 	  // -- type built-in command
-	  if (token == "type") {
+	  else if (token == "type") {
 		  // If there are no arguments, user is reminded of the command syntax.
 		  if (command.find(" ") >= command.size()) {
 			  std::cout << "Missing argument: type <command>\n";
@@ -58,6 +58,6 @@ int main() {
 
 	  // -- Unrecognized command
 	  else
-		std::cout << command << ": command not found\n";
+		  std::cout << command << ": command not found\n";
   }
 }
