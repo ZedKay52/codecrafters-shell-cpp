@@ -32,9 +32,9 @@ void handleEcho(std::string& args) {
 
 std::string checkExecutable(std::string& command) {
 	std::string envPath{ std::getenv("PATH") };
-	envPath += ";;";
+	envPath += "::";
 	while (!envPath.empty()) {
-		std::string directory{ envPath.substr(0, envPath.find_first_of(";")) };
+		std::string directory{ envPath.substr(0, envPath.find_first_of(":")) };
 		try
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(directory)) {
@@ -44,7 +44,7 @@ std::string checkExecutable(std::string& command) {
 		}
 		catch (const std::exception&) { ; }
 
-		envPath = envPath.substr(envPath.find_first_of(";") + 1);
+		envPath = envPath.substr(envPath.find_first_of(":") + 1);
 	}
 
 	return "";
