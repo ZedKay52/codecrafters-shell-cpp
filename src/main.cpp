@@ -61,7 +61,7 @@ void handleType(std::string& args) {
 				}
 			}
 		}
-		catch (const std::exception&) { }
+		catch (const std::exception&) { ; }
 
 		envPath = envPath.substr(envPath.find_first_of(":") + 1);
 	}
