@@ -17,6 +17,36 @@ CommandType commandToType(std::string& command) {
 	return invalid;
 }
 
+void handleEcho(std::string& args) {
+	// If there are no arguments, only the <newline> is written.
+	if (args.empty()) {
+		std::cout << '\n';
+		return;
+	}
+
+	// Write the arguments to standard output, followed by a <newline>
+	std::cout << args << "\n";
+}
+
+void handleType(std::string& args) {
+	// If there are no arguments, user is reminded of the command syntax.
+	if (args.empty()) {
+		std::cout << "Missing argument: type <command>\n";
+		return;
+	}
+
+	// Otherwise, set the recognized built-in commands
+	std::vector<std::string> builtins{ "exit", "echo", "type" };
+
+	// Determine how the command (argument) would be interpreted if used.
+	std::cout << args;
+	if (!std::count(builtins.begin(), builtins.end(), args)) 
+		std::cout << ": not found\n";	// unrecognized command
+	else
+		std::cout << " is a shell builtin\n";	// built-in command
+
+}
+
 int main() {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
@@ -28,13 +58,18 @@ int main() {
 
 	  std::string input{};
 	  std::getline(std::cin, input);
+	  input.erase(0, input.find_first_not_of(" \t")); // ignore leading whitespace
+	  input.erase(input.find_last_not_of(" \t") + 1); // ignore tailing whitespace
+	  if (input == "")								  // ignore empty input
+		  continue;
 
-	  // set the recognized built-in commands
-	  std::vector<std::string> builtins{ "exit", "echo", "type" };
-
-	  // Get the built-in command and the provided arguments
+	  // Get Command
 	  std::string command{ input.substr(0, input.find(" ")) };
-	  std::string argument{ input.substr(input.find(" ") + 1 , input.size()) };
+
+	  // Get Arguments
+	  std::string arguments{};
+	  if (input.find(" ") < input.size())
+		  arguments = input.substr(input.find(" ") + 1, input.size());
 
 	  // Handle the command
 	  switch (commandToType(command))
@@ -43,30 +78,11 @@ int main() {
 		  return 0;
 
 	  case echo: // -- echo built-in command
-		  // If there are no arguments, only the <newline> is written.
-		  if (input.find(" ") >= input.size()) {
-			  std::cout << '\n';
-			  continue;
-		  }
-
-		  // Write the arguments to standard output, followed by a <newline>
-		  std::cout << argument << "\n";
+		  handleEcho(arguments);
 		  break;
 
 	  case type: // -- type built-in command
-		  // If there are no arguments, user is reminded of the command syntax.
-		  if (input.find(" ") >= input.size()) {
-			  std::cout << "Missing argument: type <command>\n";
-			  continue;
-		  }
-
-		  // Determine how the command (argument) would be interpreted if used.
-		  std::cout << argument;
-		  if (!std::count(builtins.begin(), builtins.end(), argument)) // unrecognized command
-			  std::cout << ": not found\n";
-		  else // built-in command
-			  std::cout << " is a shell builtin\n";
-
+		  handleType(arguments);
 		  break;
 
 	  case invalid: // -- Unrecognized command
