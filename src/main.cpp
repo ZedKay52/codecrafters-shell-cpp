@@ -51,12 +51,18 @@ void handleType(std::string& args) {
 	std::string envPath{ std::getenv("PATH") };
 	while (!envPath.empty()) {
 		std::string directory{ envPath.substr(0, envPath.find_first_of(":")) };
-		for (const auto& entry : std::filesystem::directory_iterator(directory)) {
-			if (entry.path().stem().string() == args) {
-				std::cout << " is " << entry.path().string() << "\n";
-				return;
+
+		try
+		{
+			for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+				if (entry.path().stem().string() == args) {
+					std::cout << " is " << entry.path().string() << "\n";
+					return;
+				}
 			}
 		}
+		catch (const std::exception&) { }
+
 		envPath = envPath.substr(envPath.find_first_of(":") + 1);
 	}
 
