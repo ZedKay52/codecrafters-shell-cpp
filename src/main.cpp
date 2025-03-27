@@ -1,4 +1,6 @@
+#include <cstdlib>
 #include <iostream>
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -35,15 +37,30 @@ void handleType(std::string& args) {
 		return;
 	}
 
-	// Otherwise, set the recognized built-in commands
-	std::vector<std::string> builtins{ "exit", "echo", "type" };
-
-	// Determine how the command (argument) would be interpreted if used.
+	// Otherwise determine how the command (argument) would be interpreted if used.
 	std::cout << args;
-	if (!std::count(builtins.begin(), builtins.end(), args)) 
-		std::cout << ": not found\n";	// unrecognized command
-	else
-		std::cout << " is a shell builtin\n";	// built-in command
+
+	// -- search for the command in the built-in commands list
+	std::vector<std::string> builtins{ "exit", "echo", "type" };
+	if (std::count(builtins.begin(), builtins.end(), args)) {
+		std::cout << " is a shell builtin\n";
+		return;
+	}
+
+	// -- loop through each PATH directory and search for the command
+	std::string envPath{ std::getenv("PATH") };
+	while (!envPath.empty()) {
+		std::string directory{ envPath.substr(0, envPath.find_first_of(";")) };
+		for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+			if (entry.path().stem().string() == args) {
+				std::cout << "is " << entry.path().string() << "\n";
+			}
+		}
+		envPath = envPath.substr(envPath.find_first_of(";") + 1);
+	}
+
+	// Otherwise, the command is unrecognized
+	std::cout << ": not found\n";
 
 }
 
