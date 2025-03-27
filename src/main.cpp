@@ -49,6 +49,7 @@ void handleType(std::string& args) {
 
 	// -- loop through each PATH directory and search for the command
 	std::string envPath{ std::getenv("PATH") };
+	envPath = envPath.substr(0, envPath.find_first_not_of(":"));
 	while (!envPath.empty()) {
 		std::string directory{ envPath.substr(0, envPath.find_first_of(":")) };
 		try
@@ -62,10 +63,7 @@ void handleType(std::string& args) {
 		}
 		catch (const std::exception&) { ; }
 
-		if (envPath.find_first_of(":") < envPath.size())
-			envPath = envPath.substr(envPath.find_first_of(":") + 1);
-		else
-			envPath = "";
+		envPath = envPath.substr(envPath.find_first_of(":") + 1);
 	}
 
 	// Otherwise, the command is unrecognized
