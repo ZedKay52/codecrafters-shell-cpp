@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <filesystem>
+#include <Windows.h>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -9,14 +10,14 @@ enum CommandType {
 	quit,
 	echo,
 	type,
-	invalid,
+	notBuiltin,
 };
 
 CommandType commandToType(std::string& command) {
 	if (command == "exit") return quit;
 	if (command == "echo") return echo;
 	if (command == "type") return type;
-	return invalid;
+	return notBuiltin;
 }
 
 void handleEcho(std::string& args) {
@@ -30,45 +31,55 @@ void handleEcho(std::string& args) {
 	std::cout << args << "\n";
 }
 
-void handleType(std::string& args) {
+std::string checkExecutable(std::string& command) {
+	std::string envPath{ std::getenv("PATH") };
+	envPath += ";;";
+	while (!envPath.empty()) {
+		std::string directory{ envPath.substr(0, envPath.find_first_of(";")) };
+		try
+		{
+			for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+				if (entry.path().stem().string() == command)
+					return entry.path().string();
+			}
+		}
+		catch (const std::exception&) { ; }
+
+		envPath = envPath.substr(envPath.find_first_of(";") + 1);
+	}
+
+	return "";
+}
+
+void handleType(std::string& command) {
 	// If there are no arguments, user is reminded of the command syntax.
-	if (args.empty()) {
+	if (command.empty()) {
 		std::cout << "Missing argument: type <command>\n";
 		return;
 	}
 
 	// Otherwise determine how the command (argument) would be interpreted if used.
-	std::cout << args;
+	std::cout << command;
 
 	// -- search for the command in the built-in commands list
 	std::vector<std::string> builtins{ "exit", "echo", "type" };
-	if (std::count(builtins.begin(), builtins.end(), args)) {
+	if (std::count(builtins.begin(), builtins.end(), command)) {
 		std::cout << " is a shell builtin\n";
 		return;
 	}
 
 	// -- loop through each PATH directory and search for the command
-	std::string envPath{ std::getenv("PATH") };
-	envPath += "::";
-	while (!envPath.empty()) {
-		std::string directory{ envPath.substr(0, envPath.find_first_of(":")) };
-		try
-		{
-			for (const auto& entry : std::filesystem::directory_iterator(directory)) {
-				if (entry.path().stem().string() == args) {
-					std::cout << " is " << entry.path().string() << "\n";
-					return;
-				}
-			}
-		}
-		catch (const std::exception&) { ; }
-
-		envPath = envPath.substr(envPath.find_first_of(":") + 1);
-	}
+	std::string commandPath{ checkExecutable(command) };
+	if (!commandPath.empty())
+		std::cout << " is " << commandPath;
 
 	// Otherwise, the command is unrecognized
 	std::cout << ": not found\n";
 
+}
+
+void handleExecutable(std::string& cmdPath, std::string& args) {
+	ShellExecute(nullptr, "open", cmdPath.c_str(), args.c_str(), nullptr, SW_SHOWNA);
 }
 
 int main() {
@@ -109,8 +120,12 @@ int main() {
 		  handleType(arguments);
 		  break;
 
-	  case invalid: // -- Unrecognized command
-		  std::cout << command << ": command not found\n";
+	  case notBuiltin: // -- Not a buit-in command
+		  std::string commandPath{ checkExecutable(command) };
+		  if (!commandPath.empty())
+			  handleExecutable(commandPath, arguments);     // Executable file
+		  else
+			  std::cout << command << ": not found\n";  // unrecognized command
 	  }
 
   }
