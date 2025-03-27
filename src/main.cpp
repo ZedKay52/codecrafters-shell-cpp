@@ -60,9 +60,12 @@ void handleType(std::string& args) {
 				}
 			}
 		}
-		catch (const std::exception&) { std::cout << directory << "\n"; }
+		catch (const std::exception&) { ; }
 
-		envPath = envPath.substr(envPath.find_first_of(":") + 1);
+		if (envPath.find_first_of(":") < envPath.size())
+			envPath = envPath.substr(envPath.find_first_of(":") + 1);
+		else
+			envPath = "";
 	}
 
 	// Otherwise, the command is unrecognized
