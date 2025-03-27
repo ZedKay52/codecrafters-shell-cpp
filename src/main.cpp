@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <filesystem>
-#include <Windows.h>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -78,8 +77,8 @@ void handleType(std::string& command) {
 
 }
 
-void handleExecutable(std::string& cmdPath, std::string& args) {
-	ShellExecute(nullptr, "open", cmdPath.c_str(), args.c_str(), nullptr, SW_SHOWNA);
+void handleExecutable(std::string& input) {
+	system(input.c_str());
 }
 
 int main() {
@@ -121,9 +120,8 @@ int main() {
 		  break;
 
 	  case notBuiltin: // -- Not a buit-in command
-		  std::string commandPath{ checkExecutable(command) };
-		  if (!commandPath.empty())
-			  handleExecutable(commandPath, arguments);     // Executable file
+		  if (!checkExecutable(command).empty())
+			  handleExecutable(input);     // Executable file
 		  else
 			  std::cout << command << ": not found\n";  // unrecognized command
 	  }
