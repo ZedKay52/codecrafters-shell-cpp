@@ -51,7 +51,6 @@ void handleType(std::string& args) {
 	std::string envPath{ std::getenv("PATH") };
 	while (!envPath.empty()) {
 		std::string directory{ envPath.substr(0, envPath.find_first_of(":")) };
-		std::cout << directory << "\n";
 		try
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(directory)) {
@@ -61,7 +60,7 @@ void handleType(std::string& args) {
 				}
 			}
 		}
-		catch (const std::exception&) { ; }
+		catch (const std::exception&) { std::cout << directory << "\n"; }
 
 		envPath = envPath.substr(envPath.find_first_of(":") + 1);
 	}
