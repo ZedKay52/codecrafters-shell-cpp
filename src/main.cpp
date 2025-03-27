@@ -70,7 +70,7 @@ void handleType(std::string& command) {
 	// -- loop through each PATH directory and search for the command
 	std::string commandPath{ checkExecutable(command) };
 	if (!commandPath.empty()) {
-		std::cout << " is " << commandPath;
+		std::cout << " is " << commandPath << "\n";
 		return;
 	}
 
