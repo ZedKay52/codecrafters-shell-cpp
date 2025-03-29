@@ -63,7 +63,7 @@ void handleType(std::string& command) {
 	std::cout << command;
 
 	// -- search for the command in the built-in commands list
-	std::vector<std::string> builtins{ "exit", "echo", "type" };
+	std::vector<std::string> builtins{ "exit", "echo", "type", "pwd"};
 	if (std::count(builtins.begin(), builtins.end(), command)) {
 		std::cout << " is a shell builtin\n";
 		return;
