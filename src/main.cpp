@@ -23,6 +23,25 @@ CommandType commandToType(std::string& command) {
 	return notBuiltin;
 }
 
+void ignoreInternalWspace(std::string& arg) {
+	int wspaceNum{};
+	std::size_t firstWspace{};
+	for (std::size_t i{ 0 }; i < arg.size(); ++i) {
+		if (arg[i] == ' ') {
+			if (firstWspace == 0)
+				firstWspace = i;
+			++wspaceNum;
+			continue;
+		}
+		else if (firstWspace && wspaceNum > 1) {
+			arg.replace(firstWspace + 1, wspaceNum - 1, "");
+			i -= wspaceNum - 1;
+		}
+		firstWspace = 0;
+		wspaceNum = 0;
+	}
+}
+
 void handleEcho(std::string& args) {
 	// If there are no arguments, only the <newline> is written.
 	if (args.empty()) {
@@ -33,8 +52,10 @@ void handleEcho(std::string& args) {
 	// Write the arguments to standard output, followed by a <newline>
 	if (args[0] == '\'' && args[args.size() - 1] == '\'')
 		std::cout << args.substr(1, args.size() - 2) << "\n";
-	else if (args.contains(" "))
-		return;
+	else {
+		ignoreInternalWspace(args);
+		std::cout << args << "\n";
+	}
 }
 
 std::string checkExecutable(std::string& command) {
@@ -145,8 +166,10 @@ int main() {
 
 	  // Get Arguments
 	  std::string arguments{};
-	  if (input.find(" ") < input.size())
+	  if (input.find(" ") < input.size()) {
 		  arguments = input.substr(input.find(" ") + 1, input.size());
+		  arguments.erase(0, arguments.find_first_not_of(" \t")); // ignore leading whitespace
+	  }
 
 	  // Handle the command
 	  switch (commandToType(command))
