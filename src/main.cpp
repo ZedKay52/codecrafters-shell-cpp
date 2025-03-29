@@ -23,7 +23,7 @@ CommandType commandToType(std::string& command) {
 	return notBuiltin;
 }
 
-void ignoreInternalWspace(std::string& arg) {
+std::string ignoreInternalWspace(std::string arg) {
 	int wspaceNum{};
 	std::size_t firstWspace{};
 	for (std::size_t i{ 0 }; i < arg.size(); ++i) {
@@ -40,6 +40,8 @@ void ignoreInternalWspace(std::string& arg) {
 		firstWspace = 0;
 		wspaceNum = 0;
 	}
+
+	return arg;
 }
 
 void handleEcho(std::string& args) {
@@ -50,12 +52,18 @@ void handleEcho(std::string& args) {
 	}
 
 	// Write the arguments to standard output, followed by a <newline>
-	if (args[0] == '\'' && args[args.size() - 1] == '\'')
-		std::cout << args.substr(1, args.size() - 2) << "\n";
-	else {
-		ignoreInternalWspace(args);
-		std::cout << args << "\n";
+	while (!args.empty()) {
+		std::size_t secondQuote{ args.substr(1).find("'") };
+		if (args[0] == '\'' && secondQuote < args.size()) {
+			std::cout << args.substr(1, secondQuote);
+			args.erase(0, secondQuote + 2);
+		}
+		else {
+			std::cout << ignoreInternalWspace(args.substr(0, args.find("'")));
+			args.erase(0, args.find("'"));
+		}
 	}
+	std::cout << "\n";
 }
 
 std::string checkExecutable(std::string& command) {
