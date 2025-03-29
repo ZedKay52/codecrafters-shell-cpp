@@ -10,6 +10,7 @@ enum CommandType {
 	echo,
 	type,
 	pwd,
+	cd,
 	notBuiltin,
 };
 
@@ -18,6 +19,7 @@ CommandType commandToType(std::string& command) {
 	if (command == "echo") return echo;
 	if (command == "type") return type;
 	if (command == "pwd") return pwd;
+	if (command == "cd") return cd;
 	return notBuiltin;
 }
 
@@ -55,7 +57,7 @@ std::string checkExecutable(std::string& command) {
 void handleType(std::string& command) {
 	// If there are no arguments, user is reminded of the command syntax.
 	if (command.empty()) {
-		std::cout << "Missing argument: type <command>\n";
+		std::cout << "type: missing argument: type <command>\n";
 		return;
 	}
 
@@ -63,7 +65,7 @@ void handleType(std::string& command) {
 	std::cout << command;
 
 	// -- search for the command in the built-in commands list
-	std::vector<std::string> builtins{ "exit", "echo", "type", "pwd"};
+	std::vector<std::string> builtins{ "exit", "echo", "type", "pwd", "cd" };
 	if (std::count(builtins.begin(), builtins.end(), command)) {
 		std::cout << " is a shell builtin\n";
 		return;
@@ -91,6 +93,21 @@ void handlePwd(std::string& args) {
 		return;
 	}
 	std::cout << std::filesystem::current_path().string() << "\n";
+}
+
+void handleCd(std::string& arg) {
+	if (arg.empty()) {
+		std::cout << "cd: missing directory: cd <directory>\n";
+		return;
+	}
+
+	try {
+		std::filesystem::current_path(arg);
+	}
+	catch (std::exception&) { 
+		std::cout << "cd: " << arg << ": No such file or directory\n";
+	}
+
 }
 
 int main() {
@@ -133,6 +150,10 @@ int main() {
 
 	  case pwd:
 		  handlePwd(arguments);
+		  break;
+
+	  case cd:
+		  handleCd(arguments);
 		  break;
 
 	  case notBuiltin: // -- Not a buit-in command
