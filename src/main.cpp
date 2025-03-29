@@ -9,6 +9,7 @@ enum CommandType {
 	quit,
 	echo,
 	type,
+	pwd,
 	notBuiltin,
 };
 
@@ -16,6 +17,7 @@ CommandType commandToType(std::string& command) {
 	if (command == "exit") return quit;
 	if (command == "echo") return echo;
 	if (command == "type") return type;
+	if (command == "pwd") return pwd;
 	return notBuiltin;
 }
 
@@ -80,7 +82,15 @@ void handleType(std::string& command) {
 }
 
 void handleExecutable(std::string& input) {
-	system(input.c_str());
+	std::system(input.c_str());
+}
+
+void handlePwd(std::string& args) {
+	if (!args.empty()) {
+		std::cout << "pwd: does not accept positional parameters\n";
+		return;
+	}
+	std::cout << std::filesystem::current_path().string() << "\n";
 }
 
 int main() {
@@ -119,6 +129,10 @@ int main() {
 
 	  case type: // -- type built-in command
 		  handleType(arguments);
+		  break;
+
+	  case pwd:
+		  handlePwd(arguments);
 		  break;
 
 	  case notBuiltin: // -- Not a buit-in command
