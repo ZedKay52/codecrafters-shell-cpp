@@ -101,6 +101,17 @@ void handleCd(std::string& arg) {
 		return;
 	}
 
+	if (arg == "~") {
+#if defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
+		std::filesystem::current_path(std::getenv("HOME"));
+#endif
+
+#ifdef _WIN32
+		std::filesystem::current_path(std::getenv("USERPROFILE"));
+#endif
+		return;
+	}
+
 	try {
 		std::filesystem::current_path(arg);
 	}
@@ -148,11 +159,11 @@ int main() {
 		  handleType(arguments);
 		  break;
 
-	  case pwd:
+	  case pwd:  // -- pwd built-in command
 		  handlePwd(arguments);
 		  break;
 
-	  case cd:
+	  case cd:   // -- cd built-in command
 		  handleCd(arguments);
 		  break;
 
