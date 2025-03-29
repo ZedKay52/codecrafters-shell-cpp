@@ -24,6 +24,9 @@ CommandType commandToType(std::string& command) {
 }
 
 std::string ignoreInternalWspace(std::string arg) {
+	if (arg[0] == ' ')
+		arg.erase(0, arg.find_first_not_of(" "));
+
 	int wspaceNum{};
 	std::size_t firstWspace{};
 	for (std::size_t i{ 0 }; i < arg.size(); ++i) {
@@ -52,24 +55,48 @@ void handleEcho(std::string& args) {
 	}
 
 	// Write the arguments to standard output, followed by a <newline>
-	while (!args.empty()) {
-		std::size_t secondSingleQuote{ args.substr(1).find("'") };
-		std::size_t secondDoubleQuote{ args.substr(1).find("\"") };
-
-		if (args[0] == '\'' && secondSingleQuote < args.size()) {
-			std::cout << args.substr(1, secondSingleQuote);
-			args.erase(0, secondSingleQuote + 2);
+	char currentQuote{ ' ' };
+	std::string output{};
+	for (std::size_t i{ 0 }; i < args.size(); ++i) {
+		if (args[i] == '\'') {
+			if (currentQuote == '\'') {
+				std::cout << output.substr(1, output.size() - 1);
+				currentQuote = ' ';
+				output = "";
+			}
+			else {
+				if (currentQuote == ' ') {
+					currentQuote = '\'';
+					if (!output.empty()) {
+						std::cout << ignoreInternalWspace(output);
+						output = "";
+					}
+				}
+				output += '\'';
+			}
 		}
-		else if (args[0] == '"' && secondDoubleQuote < args.size()) {
-			std::cout << args.substr(1, secondDoubleQuote);
-			args.erase(0, secondDoubleQuote + 2);
+		else if (args[i] == '"') {
+			if (currentQuote == '"') {
+				std::cout << output.substr(1, output.size() - 1);
+				currentQuote = ' ';
+				output = "";
+			}
+			else {
+				if (currentQuote == ' ') {
+					currentQuote = '"';
+					if (!output.empty()) {
+						std::cout << ignoreInternalWspace(output);
+						output = "";
+					}
+				}
+				output += '"';
+			}
 		}
 		else {
-			std::cout << ignoreInternalWspace(args.substr(0, args.find("'")));
-			args.erase(0, args.find("'"));
+			output += args[i];
 		}
 	}
-	std::cout << "\n";
+	std::cout << ignoreInternalWspace(output) << "\n";
 }
 
 std::string checkExecutable(std::string& command) {
