@@ -53,10 +53,16 @@ void handleEcho(std::string& args) {
 
 	// Write the arguments to standard output, followed by a <newline>
 	while (!args.empty()) {
-		std::size_t secondQuote{ args.substr(1).find("'") };
-		if (args[0] == '\'' && secondQuote < args.size()) {
-			std::cout << args.substr(1, secondQuote);
-			args.erase(0, secondQuote + 2);
+		std::size_t secondSingleQuote{ args.substr(1).find("'") };
+		std::size_t secondDoubleQuote{ args.substr(1).find("\"") };
+
+		if (args[0] == '\'' && secondSingleQuote < args.size()) {
+			std::cout << args.substr(1, secondSingleQuote);
+			args.erase(0, secondSingleQuote + 2);
+		}
+		else if (args[0] == '"' && secondDoubleQuote < args.size()) {
+			std::cout << args.substr(1, secondDoubleQuote);
+			args.erase(0, secondDoubleQuote + 2);
 		}
 		else {
 			std::cout << ignoreInternalWspace(args.substr(0, args.find("'")));
