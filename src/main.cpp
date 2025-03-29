@@ -25,7 +25,7 @@ CommandType commandToType(std::string& command) {
 
 std::string ignoreInternalWspace(std::string arg) {
 	if (arg[0] == ' ')
-		arg.erase(0, arg.find_first_not_of(" "));
+		arg.erase(1, arg.find_first_not_of(" "));
 
 	int wspaceNum{};
 	std::size_t firstWspace{};
