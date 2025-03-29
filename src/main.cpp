@@ -33,6 +33,8 @@ void handleEcho(std::string& args) {
 	// Write the arguments to standard output, followed by a <newline>
 	if (args[0] == '\'' && args[args.size() - 1] == '\'')
 		std::cout << args.substr(1, args.size() - 2) << "\n";
+	else if (args.contains(" "))
+		return;
 }
 
 std::string checkExecutable(std::string& command) {
